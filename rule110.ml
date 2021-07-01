@@ -1,11 +1,8 @@
-let get_last_element my_list = 
-    let rec aux temp =
-        match temp with
-        | a :: [] -> a
-        | a :: tl -> aux tl
-        | _ -> -1
-    in
-    aux my_list
+let rec get_last_element my_list = 
+    match my_list with
+    | a :: [] -> a
+    | a :: tl -> get_last_element tl
+    | _ -> -1
 
 
 
@@ -32,9 +29,8 @@ let calculate_state old_state last_cell =
     (*Add Exceptions*)
     let (first, rest) = 
         match old_state with
-        | [] -> (-1, [])
-        | a :: [] ->  (-1, [])
         | a :: b :: tl ->  (cell_merger last_cell a b, a:: b :: tl)
+        | _ -> raise (Failure "Invalid state size")
 
     in
 
@@ -46,7 +42,7 @@ let calculate_state old_state last_cell =
                 (new_last_cell :: new_state_temp)
         | a :: b :: c :: tl -> calculate_cell (b::c::tl) ((cell_merger a b c) :: new_state_temp)
         | _-> []
-    in List.rev (calculate_cell rest (first :: []) )
+    in calculate_cell rest (first :: [])
     
 
 
@@ -54,8 +50,9 @@ let rec loop current_state previous_last_cell loops_left =
     if loops_left = 0 then
         ()
     else
-        let new_state = calculate_state current_state previous_last_cell in
-        let new_last_cell = List.hd new_state in
+        let new_state_reversed = calculate_state current_state previous_last_cell in
+        let new_last_cell = List.hd new_state_reversed in
+        let new_state = List.rev new_state_reversed in
         print_state new_state;
         print_newline ();
         loop new_state new_last_cell (loops_left - 1)
